@@ -1,6 +1,6 @@
 ---
 name: User Story
-about: Tasks for this project
+about: Tasks for Quiz web app
 title: ''
 labels: ''
 assignees: ''
@@ -9,7 +9,7 @@ assignees: ''
 
 ---
 name: User Story
-about: Suggest an idea for this project
+about: Tasks for creating Quiz Laravel web application 
 title: ''
 labels: ''
 assignees: ''
