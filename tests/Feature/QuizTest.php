@@ -20,7 +20,7 @@ class QuizTest extends TestCase
 
         $quiz = Quiz::factory()->raw();
 
-        $this->post('/quizzes', $quiz)->assertRedirect('/');
+        $this->post('/quizzes', $quiz)->assertRedirect('/quizzes');
 
         $this->assertDatabaseHas('quizzes', [
             'title' => $quiz['title'],
@@ -34,7 +34,17 @@ class QuizTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        $this->get('/quizzes/create')->assertStatus(200)->assertSeeText('Create new quiz');
+        $this->get('/quizzes/create')->assertStatus(200)->assertSeeText('Add Quiz');
+    }
+
+    public function test_user_can_view_an_edit_form()
+    {
+        $this->signIn();
+        $this->withoutExceptionHandling();
+
+        $quiz = Quiz::factory()->create(['owner_id' => Auth::id()]);
+
+        $this->get(route('quizzes.edit', ['quiz' => $quiz->id]))->assertSee($quiz->title);
     }
 
     public function test_user_can_update_a_quiz()

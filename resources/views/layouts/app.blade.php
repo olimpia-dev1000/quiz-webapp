@@ -14,6 +14,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 
 <body class="font-sans antialiased">
@@ -32,12 +33,13 @@
         <!-- Page Content -->
         <main>
 
-            <div class="flex w-full bg-slate-600">
-                @yield('content')
+            <div class="flex justify-center w-full">
+                {{ $slot }}
             </div>
 
         </main>
     </div>
+    @stack('scripts')
 </body>
 
 </html>
