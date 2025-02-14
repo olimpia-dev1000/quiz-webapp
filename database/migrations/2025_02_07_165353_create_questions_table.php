@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('question_text');
             $table->enum('question_type', ['multiple_choice', 'true_false'])->default('true_false');
             $table->integer('points')->default(1);
-            $table->integer('order_number');
+            $table->integer('order_number')->nullable();
             $table->timestamps();
         });
     }

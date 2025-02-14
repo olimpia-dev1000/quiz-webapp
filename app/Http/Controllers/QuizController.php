@@ -12,7 +12,8 @@ class QuizController extends Controller
 {
     public function index()
     {
-        return view('quizzes.index');
+        $quizzes = Auth::user()->quizzes;
+        return view('quizzes.index', compact('quizzes'));
     }
 
     public function show(Quiz $quiz)
@@ -31,11 +32,22 @@ class QuizController extends Controller
 
     public function store()
     {
-        $attributes = request()->validate(['title' => 'required', 'description' => 'required']);
+        $attributes = request()->validate(['title' => 'required|min:3', 'description' => 'required', 'time_limit' => '']);
 
         Auth::user()->quizzes()->create($attributes);
 
-        return redirect('/');
+        return redirect(route('quizzes'));
+    }
+
+    public function edit(Quiz $quiz)
+    {
+
+        if (Auth::user()->id != $quiz->owner->id) {
+            abort(403);
+        };
+
+
+        return view('quizzes.edit', compact('quiz'));
     }
 
     public function update(Quiz $quiz)
@@ -46,12 +58,14 @@ class QuizController extends Controller
 
         $attr = request()->validate([
             'title' => 'sometimes|required',
-            'description' => 'sometimes|required|max:100'
+            'description' => 'sometimes|required|max:100',
+            'time_limit' => ''
+
         ]);
 
         $quiz->update($attr);
 
-        return redirect('/');
+        return redirect(route('quizzes'));
     }
 
     public function destroy(Quiz $quiz)
@@ -62,6 +76,6 @@ class QuizController extends Controller
 
         $quiz->delete();
 
-        return redirect('/');
+        return redirect(route('quizzes'));
     }
 }
