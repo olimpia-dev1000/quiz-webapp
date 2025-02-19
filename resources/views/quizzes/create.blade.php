@@ -29,6 +29,7 @@
                             <x-text-input id="title" class="block w-full mt-2" type="text" name="title"
                                 :value="old('title')" required autofocus placeholder="Basics of Laravel"
                                 data-test="add-quiz-form-title-field" />
+
                             <x-input-error :messages="$errors->get('title')" class="mt-2" />
                         </div>
 

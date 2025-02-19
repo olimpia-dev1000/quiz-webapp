@@ -149,7 +149,12 @@
 
                                 </div>
                                 <div
-                                    class="flex justify-center w-full lg:justify-end gap-x-4 lg:col-span-1 lg:self-center">
+                                    class="flex items-center justify-center w-full lg:justify-end gap-x-4 lg:col-span-1 lg:self-center">
+
+                                    <a href="{{route('answers.create', ['quiz' => $quiz->id, 'question' => $question->id])}}"
+                                        class="text-xs font-bold text-blue-900 uppercase cursor-pointer"
+                                        data-test="edit-answers-button">
+                                        Answers</a>
 
                                     <form class="flex items-center"
                                         action="{{ route('questions.destroy', ['quiz' => $quiz->id, 'question' => $question->id]) }}"

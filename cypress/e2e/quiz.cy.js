@@ -85,7 +85,6 @@ describe('Viewing Quizzes', () => {
       return true;
     });
 
-
   })
 
   it('can have multiple choice questions', () => {
@@ -132,7 +131,15 @@ describe('Viewing Quizzes', () => {
 
   })
 
+  it('question has add answers button', () => {
+    cy.visit('http://localhost:8000/quizzes');
+    cy.getByData('add-quiz-form-add-questions-button').first().click();
+    cy.getByData('add-question-question-text-field').type('Test question');
+    cy.getByData('add-question-points-text-field').type('5');
 
+    cy.getByData('add-question-form-save-button').click();
+    cy.getByData('edit-answers-button').should('exist');
 
+  })
 
 })

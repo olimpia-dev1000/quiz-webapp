@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Route;
-
 
 
 Route::get('/', function () {
@@ -33,6 +33,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/quizzes/{quiz}/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
     Route::delete('/quizzes/{quiz}/questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
     Route::post('/quizzes/{quiz}/questions/reorder', [QuestionController::class, 'reorder'])->name('questions.reorder');
+
+    Route::get('/quizzes/{quiz}/questions/{question}/answers', [AnswerController::class, 'create'])->name('answers');
+    Route::get('/quizzes/{quiz}/questions/{question}/answers/create', [AnswerController::class, 'create'])->name('answers.create');
+    Route::post('/quizzes/{quiz}/questions/{question}/answers', [AnswerController::class, 'store'])->name('answers.store');
+    Route::get('/quizzes/{quiz}/questions/{question}/answers/{answer}/edit', [AnswerController::class, 'edit'])->name('answers.edit');
+    Route::patch('/quizzes/{quiz}/questions/{question}/answers/{answer}', [AnswerController::class, 'update'])->name('answers.update');
+    Route::delete('/quizzes/{quiz}/questions/{question}/answers/{answer}', [AnswerController::class, 'destroy'])->name('answers.destroy');
 });
 
 require __DIR__ . '/auth.php';
