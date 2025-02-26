@@ -20,7 +20,6 @@ class AnswerFactory extends Factory
         return [
             'answer_text' => fake()->sentence(),
             'question_id' => fn() => Question::factory()->create()->id,
-            'is_correct' => false
         ];
     }
 }

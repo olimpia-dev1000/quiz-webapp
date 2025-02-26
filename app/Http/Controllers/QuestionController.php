@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Answer;
 use App\Models\Quiz;
 use App\Models\Question;
 use Illuminate\Http\Request;
@@ -30,13 +30,13 @@ class QuestionController extends Controller
             'order_number' => 'sometimes|required',
         ]);
 
+        $question = $quiz->questions()->create($attributes);
 
-        $quiz->questions()->create($attributes);
         return redirect("/quizzes/{$quiz->id}/questions");
     }
+
     public function update(Quiz $quiz, Question $question)
     {
-
         if (Auth::id() !== ($quiz->owner_id)) {
             abort(403);
         };
@@ -47,7 +47,6 @@ class QuestionController extends Controller
             'points' => 'sometimes|required',
             'order_number' => 'sometimes|required',
         ]);
-
 
         $question->update($attributes);
 
@@ -71,7 +70,6 @@ class QuestionController extends Controller
         foreach ($questions as $question) {
             Question::where('id', $question['id'])->update(['order_number' => $question['order_number']]);
         }
-
 
         return  response()->json(['success' => true]);
     }

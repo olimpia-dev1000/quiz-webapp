@@ -31,5 +31,30 @@ class Question extends Model
             $lastPosition = static::max('order_number');
             $question->order_number = $lastPosition ? $lastPosition + 1 : 1;
         });
+
+        static::created(function ($question) {
+            if ($question->question_type === 'true_false') {
+                $question->createTrueFalseAnswer();
+            }
+        });
+
+        static::updating(function ($question) {
+
+            if ($question->isDirty('question_type')) {
+                $question->answers()->delete();
+
+                if ($question->question_type === 'true_false') {
+                    $question->createTrueFalseAnswer();
+                }
+            }
+        });
+    }
+
+    public function createTrueFalseAnswer()
+    {
+        $this->answers()->createMany([
+            ['answer_text' => 'True', 'is_correct' => false],
+            ['answer_text' => 'False', 'is_correct' => false],
+        ]);
     }
 }

@@ -27,8 +27,14 @@ class AnswerController extends Controller
 
     public function store(Quiz $quiz, Question $question)
     {
-        if ($question->answers()->count() >= 4) {
-            throw new \Exception('You can only have a maximum of 4 answers per question');
+        $answerCount = $question->answers()->count();
+
+        if ($answerCount >= 4) {
+            throw new \Exception('You can only have a maximum of 4 answers per question.');
+        }
+
+        if ($question->question_type === 'true_false' && $answerCount >= 2) {
+            throw new \Exception('You can only have a maximum of 2 answers for a true/false question.');
         }
 
         $attributes = request()->validate([

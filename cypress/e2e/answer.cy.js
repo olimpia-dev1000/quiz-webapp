@@ -66,9 +66,6 @@ describe('Viewing Answers', () => {
 
     })
 
-    // TODO: answer can be updated
-
-
     it('can be updated', () => {
         cy.visit('http://localhost:8000/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
@@ -138,7 +135,6 @@ describe('Viewing Answers', () => {
         });
 
     })
-
 
     // TODO: only one answer is correct
 
