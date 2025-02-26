@@ -23,8 +23,24 @@ class Answer extends Model
         parent::boot();
 
         static::creating(function ($answer) {
-            if ($answer->question->answers()->count() >= 4) {
-                throw new \Exception('You can only have a maximum of 4 answers per question');
+            $answerCount = $answer->question->answers()->count(); // Avoid multiple queries
+
+            if ($answerCount >= 4) {
+                throw new \Exception('You can only have a maximum of 4 answers per question.');
+            }
+
+            if ($answer->question->question_type === 'true_false' && $answerCount >= 2) {
+                throw new \Exception('You can only have a maximum of 2 answers for a true/false question.');
+            }
+
+            if ($answer->is_correct && $answer->question->answers()->where('is_correct', true)->exists()) {
+                throw new \Exception('Only one answer can be marked as correct.');
+            }
+        });
+
+        static::updating(function ($answer) {
+            if ($answer->question->question_type === 'true_false' && $answer->isDirty('answer_text')) {
+                throw new \Exception('The text of a true/false answer cannot be updated.');
             }
         });
     }

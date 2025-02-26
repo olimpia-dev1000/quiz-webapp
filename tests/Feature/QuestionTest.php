@@ -26,7 +26,6 @@ class QuestionTest extends TestCase
 
     public function test_its_question_type_can_be_changed()
     {
-
         $quiz = app(QuizFactory::class)->withQuestions(5)->ownedBy($this->signIn())->create();
 
         $this->assertEquals(count($quiz->questions), 5);
@@ -38,9 +37,6 @@ class QuestionTest extends TestCase
 
     public function test_it_can_be_deleted()
     {
-
-        $this->withoutExceptionHandling();
-
         $quiz = app(QuizFactory::class)->withQuestions(5)->ownedBy($this->signIn())->create();
 
         $this->delete("/quizzes/{$quiz->id}/questions/{$quiz->questions[0]->id}");
@@ -48,5 +44,23 @@ class QuestionTest extends TestCase
         $quiz->refresh();
 
         $this->assertEquals(count($quiz->questions), 4);
+    }
+
+    public function test_true_false_question_has_automatically_2_answers_by_creating_it()
+    {
+        $this->withoutExceptionHandling();
+
+        $quiz = app(QuizFactory::class)->ownedBy($this->signIn())->create();
+
+        $attr = [
+            'question_text' => 'Test question',
+            'question_type' => 'true_false',
+        ];
+
+        $this->post(route('questions.store', ['quiz' => $quiz->id]), $attr);
+
+        $this->assertDatabaseHas('questions', $attr);
+
+        $this->assertEquals(count($quiz->questions[0]->answers), 2);
     }
 }
