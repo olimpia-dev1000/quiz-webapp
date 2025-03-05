@@ -72,7 +72,8 @@
                                 @csrf
                                 <x-text-input id="is_correct" class="block w-4 h-4 rounded-sm" type="checkbox"
                                     name="is_correct" value="{{$answer->is_correct}}" onChange="this.form.submit()"
-                                    data-test="edit-answer-is-correct-checkbox" />
+                                    data-test="edit-answer-is-correct-checkbox"
+                                    :disabled="$hasCorrectAnswer && !$answer->is_correct" />
 
                                 <x-input-label for="is_correct" :value="__('Correct answer')" class="w-full" />
                             </form>

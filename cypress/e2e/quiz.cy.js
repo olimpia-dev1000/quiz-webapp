@@ -1,37 +1,28 @@
 describe('Viewing Quizzes', () => {
 
-  const testUser = {
-    name: 'Test User',
-    email: `test1245678910@example.com`,
-    password: 'password123',
-    password_confirmation: 'password123'
-  }
+  const user = {
+    name: "Test User",
+    email: "testuser@example.com",
+    password: "password123",
+  };
+
+  before(() => {
+    cy.createTestUser(user);
+    cy.createQuiz(user.email, 5, false);
+  });
 
   beforeEach(() => {
-    cy.visit('http://localhost:8000/register')
-
-    // Fill in registration form
-    cy.get('input#name').type(testUser.name)
-    cy.get('input#email').type(testUser.email)
-    cy.get('input#password').type(testUser.password)
-    cy.get('input#password_confirmation').type(testUser.password_confirmation)
-    cy.get('button[type="submit"]').contains('Register').click()
-
-    cy.visit('http://localhost:8000/login')
-
-    // Fill in login form
-    cy.get('input#email').type(testUser.email)
-    cy.get('input#password').type(testUser.password)
-
-    // Submit form
-    cy.get('button[type="submit"]').contains('Log in').click()
-
-  })
+    cy.session("user-session", () => {
+      cy.login(user.email, user.password);
+    }, {
+      cacheAcrossSpecs: true
+    });
+  });
 
   it('see the quizzes tab in the navigation bar', () => {
     cy.visit('http://localhost:8000/dashboard').contains('Dashboard');
     cy.visit('http://localhost:8000/dashboard').contains('Quizzes');
-  })
+  });
 
   it('see the add link on the quizzes page', () => {
     cy.visit('http://localhost:8000/quizzes');

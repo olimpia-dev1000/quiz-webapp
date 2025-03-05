@@ -1,38 +1,30 @@
 describe('Viewing Answers', () => {
 
-    const testUser = {
-        name: 'Test User',
-        email: `test1245678910@example.com`,
-        password: 'password123',
-        password_confirmation: 'password123'
-    }
+    const user = {
+        name: "Test User",
+        email: "testuser@example.com",
+        password: "password123",
+    };
+
+    before(() => {
+        cy.createTestUser(user);
+        cy.createQuiz(user.email, 5, true);
+    });
 
     beforeEach(() => {
-        cy.visit('http://localhost:8000/register')
-
-        // Fill in registration form
-        cy.get('input#name').type(testUser.name)
-        cy.get('input#email').type(testUser.email)
-        cy.get('input#password').type(testUser.password)
-        cy.get('input#password_confirmation').type(testUser.password_confirmation)
-        cy.get('button[type="submit"]').contains('Register').click()
-
-        cy.visit('http://localhost:8000/login')
-
-        // Fill in login form
-        cy.get('input#email').type(testUser.email)
-        cy.get('input#password').type(testUser.password)
-
-        // Submit form
-        cy.get('button[type="submit"]').contains('Log in').click()
-
-    })
+        cy.session("user-session", () => {
+            cy.login(user.email, user.password);
+        }, {
+            cacheAcrossSpecs: true
+        });
+    });
 
     it('can be added using the input field', () => {
         cy.visit('http://localhost:8000/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('add-question-question-text-field').type('Some test question');
         cy.getByData('add-question-points-text-field').type('1');
+        cy.getByData('add-question-multiple-choice-radio').click();
 
         cy.getByData('add-question-form-save-button').click();
 
@@ -55,8 +47,7 @@ describe('Viewing Answers', () => {
         cy.visit('http://localhost:8000/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('edit-answers-button').first().click();
-        cy.getByData('add-answer-answer-text-field').type('Some answer');
-        cy.getByData('add-answer-answer-submit-button').click();
+
         cy.getByData('add-answer-answer-delete-button').first().click();
 
         cy.on('window:confirm', (confirmText) => {
@@ -70,9 +61,6 @@ describe('Viewing Answers', () => {
         cy.visit('http://localhost:8000/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('edit-answers-button').first().click();
-        cy.getByData('add-answer-answer-text-field').type('Some answer');
-        cy.getByData('add-answer-answer-submit-button').click();
-
 
         cy.getByData('edit-answer-answer-text-field').first()
             .clear()
@@ -91,10 +79,34 @@ describe('Viewing Answers', () => {
         });
     })
 
-    it.only('only 4 answers can be added per question', () => {
+    it('only 4 answers can be added per question', () => {
         cy.visit('http://localhost:8000/quizzes');
-        cy.getByData('add-quiz-form-add-questions-button').first().click();
-        cy.getByData('edit-answers-button').first().click();
+        cy.getByData('add-quiz-link').click();
+
+        cy.getByData('add-quiz-form-title-field').type('Basic Laravel');
+        cy.getByData('add-quiz-form-description-field').type('This quiz is about basics of Laravel.');
+        cy.getByData('add-quiz-form-time-limit-field').type('15');
+        cy.getByData('add-quiz-form-save-button').click();
+
+        cy.contains('Basic Laravel');
+
+        cy.contains('Basic Laravel')
+            .parents('.relative.flex.flex-col') // Navigate to the quiz container
+            .find('[data-test="add-quiz-form-add-questions-button"]')
+            .click();
+
+        cy.getByData('add-question-question-text-field').type('Some test question');
+        cy.getByData('add-question-points-text-field').type('1');
+        cy.getByData('add-question-multiple-choice-radio').click();
+
+        cy.getByData('add-question-form-save-button').click();
+
+        cy.get('input#question_text')
+            .filter('[value="Some test question"]')
+            .first()
+            .should('have.value', 'Some test question').closest('.grid').find('a[data-test="edit-answers-button"]')
+            .click();
+
 
         cy.getByData('add-answer-answer-text-field').type('Some answer');
         cy.getByData('add-answer-answer-submit-button').click();
@@ -136,9 +148,29 @@ describe('Viewing Answers', () => {
 
     })
 
-    // TODO: only one answer is correct
 
-    // TODO: next question arrows
+    it('only 1 answer can be correct', () => {
+        cy.visit('http://localhost:8000/quizzes');
+        cy.getByData('add-quiz-form-add-questions-button').eq(1).click();
+        cy.getByData('edit-answers-button').first().click();
+        cy.getByData('edit-answer-is-correct-checkbox').first().click();
 
-    // TODO: proper handling of error message 
+        cy.getByData('edit-answer-is-correct-checkbox').eq(1)
+            .should('be.disabled');
+    })
+
 })
+
+// TODO: True false answer can not be edited
+
+// TODO: True false answer can not be edited
+
+// TODO: Can not add true false answer
+
+// TODO: next question arrows
+
+// TODO: proper handling of error message
+
+// TODO: can edit text with editing checbox
+
+// TODO: when you want change type of question confirmation screen will appear
