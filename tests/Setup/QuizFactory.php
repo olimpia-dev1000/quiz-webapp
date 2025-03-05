@@ -39,7 +39,7 @@ class QuizFactory
 
         if ($this->answers && $question->count() > 0) {
             foreach ($question as $qs) {
-                Answer::factory(3)->create(['question_id' => $qs->id]);
+                Answer::factory(3)->create(['question_id' => $qs->id, 'is_correct' => false]);
                 Answer::factory(1)->create(['question_id' => $qs->id, 'is_correct' => true]);
             }
         }
