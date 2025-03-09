@@ -7,6 +7,7 @@ use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class AnswerController extends Controller
 {
@@ -22,7 +23,9 @@ class AnswerController extends Controller
 
         $hasCorrectAnswer = $answers->contains('is_correct', true);
 
-        return view('answers.create', compact('quiz', 'question', 'answers', 'answersReachedLimit', 'hasCorrectAnswer'));
+        $canBeEdited = $question->question_type === 'multiple_choice';
+
+        return view('answers.create', compact('quiz', 'question', 'answers', 'answersReachedLimit', 'hasCorrectAnswer', 'canBeEdited'));
     }
 
     public function store(Quiz $quiz, Question $question)
@@ -70,6 +73,10 @@ class AnswerController extends Controller
 
     public function destroy(Quiz $quiz, Question $question, Answer $answer)
     {
+        if ($question->question_type === 'true_false') {
+            abort(new Response('Method Not Allowed', 405));
+        }
+
         $answer->delete();
 
         return redirect(route('answers', ['quiz' => $quiz->id, 'question' => $question->id]));

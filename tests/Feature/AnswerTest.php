@@ -118,6 +118,23 @@ class AnswerTest extends TestCase
         $response->assertStatus(500);
     }
 
+    public function test_can_not_be_deleted_by_false_true_question()
+    {
+        $quiz = app(QuizFactory::class)->withQuestions(1)->ownedBy($this->signIn())->create();
+
+        $question = $quiz->questions()->firstOrFail();
+
+        $answer = $question->answers()->firstOrFail();
+
+        $response = $this->deleteJson(route('answers.destroy', [
+            'quiz' => $quiz->id,
+            'question' => $question->id,
+            'answer' => $answer->id
+        ]));
+
+        $response->assertStatus(405);
+    }
+
     public function test_it_can_be_deleted()
     {
         $quiz = app(QuizFactory::class)->withQuestions(1)->withAnswers(true)->ownedBy($this->signIn())->create();
