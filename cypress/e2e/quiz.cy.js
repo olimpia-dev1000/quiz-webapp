@@ -3,34 +3,51 @@ describe('Viewing Quizzes', () => {
   const user = {
     name: "Test User",
     email: "testuser@example.com",
-    password: "password123",
+    password: "passwloiretfdf!!@",
   };
 
   before(() => {
-    cy.createTestUser(user);
-    cy.createQuiz(user.email, 5, false);
+    cy.task('resetDatabase').then(() => {
+      cy.log('Database reset completed');
+    });
+    cy.task('createTestUser', user).then(() => {
+      cy.log('Test user created');
+    });
+    cy.task('createQuiz', {
+      email: user.email,
+      questionsCount: 5,
+      hasAnswers: true
+    }).then(() => {
+      cy.log('Quiz created');
+    });
   });
 
   beforeEach(() => {
     cy.session("user-session", () => {
+      cy.log('Attempting to log in');
       cy.login(user.email, user.password);
     }, {
-      cacheAcrossSpecs: true
+      cacheAcrossSpecs: true,
+      validate() {
+        cy.log('Validating session');
+        cy.visit('/quizzes');
+        cy.url().should('include', '/quizzes');
+      }
     });
   });
 
   it('see the quizzes tab in the navigation bar', () => {
-    cy.visit('http://localhost:8000/dashboard').contains('Dashboard');
-    cy.visit('http://localhost:8000/dashboard').contains('Quizzes');
+    cy.visit('/dashboard').contains('Dashboard');
+    cy.visit('/dashboard').contains('Quizzes');
   });
 
   it('see the add link on the quizzes page', () => {
-    cy.visit('http://localhost:8000/quizzes');
+    cy.visit('/quizzes');
     cy.getByData('add-quiz-link').should('exist');
   })
 
   it('see the form to create a quizz containing the token', () => {
-    cy.visit('http://localhost:8000/quizzes/create');
+    cy.visit('/quizzes/create');
     cy.getByData('add-quiz-form').within(() => {
       cy.get('input[name="_token"]').should('exist');
     });
@@ -38,7 +55,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('should contain all the neccesary fields', () => {
-    cy.visit('http://localhost:8000/quizzes/create');
+    cy.visit('/quizzes/create');
     cy.getByData('add-quiz-form-title-field').should('exist');
     cy.getByData('add-quiz-form-description-field').should('exist');
     // cy.getByData('add-quiz-form-is-public-field').should('exist');
@@ -49,7 +66,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('form is successfully submitted', () => {
-    cy.visit('http://localhost:8000/quizzes/create');
+    cy.visit('/quizzes/create');
 
     cy.getByData('add-quiz-form-title-field').type('Basic Laravel');
     cy.getByData('add-quiz-form-description-field').type('This quiz is about basics of Laravel.');
@@ -62,7 +79,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('can be deleted', () => {
-    cy.visit('http://localhost:8000/quizzes/create');
+    cy.visit('/quizzes/create');
 
     cy.getByData('add-quiz-form-title-field').type('Basic Laravel');
     cy.getByData('add-quiz-form-description-field').type('This quiz is about basics of Laravel.');
@@ -79,7 +96,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('can have multiple choice questions', () => {
-    cy.visit('http://localhost:8000/quizzes');
+    cy.visit('/quizzes');
     cy.getByData('add-quiz-form-add-questions-button').first().click();
     cy.getByData('add-question-question-text-field').type('Test question');
     cy.getByData('add-question-points-text-field').type('5');
@@ -88,7 +105,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('question title can be edited', () => {
-    cy.visit('http://localhost:8000/quizzes');
+    cy.visit('/quizzes');
 
     cy.getByData('add-quiz-form-add-questions-button').first().click();
     cy.getByData('add-question-question-text-field').type('Test question');
@@ -107,7 +124,7 @@ describe('Viewing Quizzes', () => {
 
 
   it('question can be deleted', () => {
-    cy.visit('http://localhost:8000/quizzes');
+    cy.visit('/quizzes');
     cy.getByData('add-quiz-form-add-questions-button').first().click();
     cy.getByData('add-question-question-text-field').type('Test question');
     cy.getByData('add-question-points-text-field').type('5');
@@ -123,7 +140,7 @@ describe('Viewing Quizzes', () => {
   })
 
   it('question has add answers button', () => {
-    cy.visit('http://localhost:8000/quizzes');
+    cy.visit('/quizzes');
     cy.getByData('add-quiz-form-add-questions-button').first().click();
     cy.getByData('add-question-question-text-field').type('Test question');
     cy.getByData('add-question-points-text-field').type('5');

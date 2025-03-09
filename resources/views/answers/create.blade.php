@@ -17,7 +17,7 @@
 
                         <h3 class="text-lg font-semibold text-center ">{{$question->question_text}}</h3>
 
-                        @if ($answersReachedLimit)
+                        @if ($answersReachedLimit || !$canBeEdited)
                         <p class="mt-4 font-semibold text-green-700">All answers added!</p>
                         @else
                         <form method="post"
@@ -27,6 +27,7 @@
                             <x-text-input id="answer_text" class="block w-3/5 border-none shadow-none" type="text"
                                 name="answer_text" :value="old('answer_text')" required placeholder="Answer"
                                 data-test="add-answer-answer-text-field" />
+
                             <div class="flex flex-row items-center justify-center gap-4">
                                 <x-text-input id="is_correct" class="block w-4 h-4 rounded-sm" type="checkbox"
                                     name="is_correct" value="0" data-test="add-answer-is-correct-checkbox"
@@ -39,10 +40,7 @@
                             </x-primary-button>
                         </form>
 
-
                         @endif
-
-
 
                         @foreach ($answers as $answer)
 
@@ -60,7 +58,7 @@
                                     <x-text-input id="answer_text" class="block w-full border-none shadow-none"
                                         type="text" name="answer_text" value="{{$answer->answer_text}}"
                                         onChange="this.form.submit()" required placeholder="Answer"
-                                        data-test="edit-answer-answer-text-field" />
+                                        data-test="edit-answer-answer-text-field" :disabled="!$canBeEdited" />
 
                                 </form>
                             </div>
@@ -86,7 +84,7 @@
                                 <button data-test="add-answer-answer-delete-button"
                                     class="text-xs font-bold text-red-500 uppercase"
                                     onclick="return confirm('Are you sure you want to delete this answer?')"
-                                    type="submit">Delete</button>
+                                    type="submit" {{!$canBeEdited ? 'disabled' : '' }}>Delete</button>
                             </form>
 
                         </div>

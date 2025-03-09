@@ -3,24 +3,42 @@ describe('Viewing Answers', () => {
     const user = {
         name: "Test User",
         email: "testuser@example.com",
-        password: "password123",
+        password: "passwloiretfdf!!@",
     };
 
     before(() => {
-        cy.createTestUser(user);
-        cy.createQuiz(user.email, 5, true);
+        cy.task('resetDatabase').then(() => {
+            cy.log('Database reset completed');
+        });
+        cy.task('createTestUser', user).then(() => {
+            cy.log('Test user created');
+        });
+        cy.task('createQuiz', {
+            email: user.email,
+            questionsCount: 5,
+            hasAnswers: true
+        }).then(() => {
+            cy.log('Quiz created');
+        });
     });
 
     beforeEach(() => {
         cy.session("user-session", () => {
+            cy.log('Attempting to log in');
             cy.login(user.email, user.password);
         }, {
-            cacheAcrossSpecs: true
+            cacheAcrossSpecs: true,
+            validate() {
+                cy.log('Validating session');
+                cy.visit('/quizzes');
+                cy.url().should('include', '/quizzes');
+            }
         });
     });
 
     it('can be added using the input field', () => {
-        cy.visit('http://localhost:8000/quizzes');
+        cy.visit('/quizzes');
+
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('add-question-question-text-field').type('Some test question');
         cy.getByData('add-question-points-text-field').type('1');
@@ -44,7 +62,7 @@ describe('Viewing Answers', () => {
     })
 
     it('can be deleted', () => {
-        cy.visit('http://localhost:8000/quizzes');
+        cy.visit('/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('edit-answers-button').first().click();
 
@@ -58,7 +76,7 @@ describe('Viewing Answers', () => {
     })
 
     it('can be updated', () => {
-        cy.visit('http://localhost:8000/quizzes');
+        cy.visit('/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').first().click();
         cy.getByData('edit-answers-button').first().click();
 
@@ -80,7 +98,7 @@ describe('Viewing Answers', () => {
     })
 
     it('only 4 answers can be added per question', () => {
-        cy.visit('http://localhost:8000/quizzes');
+        cy.visit('/quizzes');
         cy.getByData('add-quiz-link').click();
 
         cy.getByData('add-quiz-form-title-field').type('Basic Laravel');
@@ -150,22 +168,54 @@ describe('Viewing Answers', () => {
 
 
     it('only 1 answer can be correct', () => {
-        cy.visit('http://localhost:8000/quizzes');
+        cy.visit('/quizzes');
         cy.getByData('add-quiz-form-add-questions-button').eq(1).click();
         cy.getByData('edit-answers-button').first().click();
-        cy.getByData('edit-answer-is-correct-checkbox').first().click();
 
-        cy.getByData('edit-answer-is-correct-checkbox').eq(1)
-            .should('be.disabled');
-    })
+        // Find all checkboxes
+        cy.getByData('edit-answer-is-correct-checkbox').then(($checkboxes) => {
+            let checkedIndex = -1;
+
+            // Find the index of the checked checkbox
+            $checkboxes.each((index, checkbox) => {
+                if (Cypress.$(checkbox).prop('checked')) {
+                    checkedIndex = index;
+                }
+            });
+
+            if (checkedIndex !== -1) {
+                // If a checkbox is checked, ensure others are disabled
+                cy.getByData('edit-answer-is-correct-checkbox').each(($el, idx) => {
+                    if (idx !== checkedIndex) {
+                        cy.wrap($el).should('be.disabled');
+                    }
+                });
+            }
+        });
+    });
+
+
+    it.only('if its question is of type true false text can not be edited or deleted', () => {
+        cy.visit('/quizzes');
+        cy.getByData('add-quiz-form-add-questions-button').eq(0).click();
+
+        cy.getByData('edit-question-true-false-radio').first().click();
+
+        cy.getByData('edit-answers-button').first().click();
+
+        cy.getByData('edit-answer-answer-text-field').each(($el, idx) => {
+            cy.wrap($el).should('be.disabled');
+        });
+
+        cy.getByData('add-answer-answer-delete-button').each(($el, idx) => {
+            cy.wrap($el).should('be.disabled');
+        });
+
+
+    });
 
 })
 
-// TODO: True false answer can not be edited
-
-// TODO: True false answer can not be edited
-
-// TODO: Can not add true false answer
 
 // TODO: next question arrows
 
